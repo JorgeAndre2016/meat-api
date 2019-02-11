@@ -5,12 +5,28 @@ const server = restify.createServer({
     version: '1.0.0'
 });
 
-server.get('/hello', (req, res, next)=>{
-    res.json({message: 'hello'});
-    return next;
-})
+server.use(restify.plugins.queryParser());
 
-server.listen(3000, ()=> {
-    console.log("Server ativo");
-    
+server.get('/info', [
+    (req, res, next) => {
+        return next();
+    },
+    (req, res, next) => {
+        // res.contentType = 'application/json';
+        // res.status(400);
+        // res.setHeader('Content-Type', 'application/json');
+        // res.send({message: 'hello'});
+        res.json({
+            browser: req.userAgent(),
+            method: req.method,
+            url: req.url,
+            path: req.path(),
+            query: req.query
+        });
+        return next;
+    }])
+
+server.listen(3000, () => {
+    console.log("API is running on http://localhost:3000");
+
 });
