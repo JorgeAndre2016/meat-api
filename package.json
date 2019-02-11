@@ -8,5 +8,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "restify": "6.3.4"
+  },
+  "devDependencies": {
+    "@types/restify": "5.0.6"
+  }
 }
