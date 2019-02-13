@@ -1,5 +1,3 @@
-import { resolve } from "dns";
-
 const users = [
     { id: '1', name: 'Peter Parker', email: 'peter@marvel.com' },
     { id: '2', name: 'Bruce Wayne', email: 'bruce@dc.com' }
