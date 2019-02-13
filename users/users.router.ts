@@ -5,7 +5,8 @@ import { User } from './users.model'
 class UsersRouter extends Router {
     applyRouter(application: restify.Server){
         application.get('/users', (req, resp, next) => {
-            User.findAll().then(users => {
+            // User.findAll().then(users => {
+            User.find().then(users => {
                 resp.json(users);
                 return next();
             });
