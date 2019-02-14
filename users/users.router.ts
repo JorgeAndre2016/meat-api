@@ -1,9 +1,9 @@
-import { Router} from '../common/router';
+import { Router } from '../common/router';
 import * as restify from 'restify';
 import { User } from './users.model'
 
 class UsersRouter extends Router {
-    applyRouter(application: restify.Server){
+    applyRouter(application: restify.Server) {
         application.get('/users', (req, resp, next) => {
             // User.findAll().then(users => {
             User.find().then(users => {
@@ -14,7 +14,7 @@ class UsersRouter extends Router {
 
         application.get('/users/:id', (req, resp, next) => {
             User.findById(req.params.id).then(user => {
-                if(user) {
+                if (user) {
                     resp.json(user);
                     return next();
                 }
@@ -31,6 +31,22 @@ class UsersRouter extends Router {
                 resp.json(user);
                 return next();
             })
+        });
+
+        application.put('/users/:id', (req, resp, next) => {
+            const options = { overwrite: true }; // parâmetro for atualizar todos os campos 
+                                                 // caso algum não sejá enviado logo não ira ser apresentado no doc
+            User.update({ _id: req.params.id }, req.body, options).exec()
+                .then(result => {
+                    if (result.n) {
+                        return User.findById(req.params.id);
+                    } else {
+                       resp.send(404);
+                    }
+                }).then(user => {
+                    resp.json(user);
+                    return next();
+                })
         });
     }
 }
