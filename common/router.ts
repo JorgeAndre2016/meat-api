@@ -1,5 +1,6 @@
 import * as restify from 'restify';
 import { EventEmitter } from 'events';
+import { NotFoundError } from 'restify-errors';
 
 // class abstrata usada para mapear as rotas
 export abstract class Router extends EventEmitter {
@@ -11,7 +12,8 @@ export abstract class Router extends EventEmitter {
                 this.emit('beforeRender', document);
                 response.json(document);
             }else {
-                response.send(404);
+                // response.send(404);
+                throw new NotFoundError('Documento não encontrado');
             };
             return next();
         }
