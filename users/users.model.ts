@@ -67,7 +67,6 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-
 // pre - evento save - assinatura middleware pre
 userSchema.pre('save', function(next){
     const user: User = this;
@@ -78,6 +77,20 @@ userSchema.pre('save', function(next){
         bcrypt.hash(user.password, environment.security.saltRounds)
             .then(hash => {
                 user.password = hash;
+                next();
+            }).catch(next);
+    }
+});
+
+// pre - evento findOneAndUpdate - assinatura middleware pre
+userSchema.pre('findOneAndUpdate', function(next){
+
+    if(!this.getUpdate().password){
+        next();
+    } else {
+        bcrypt.hash(this.getUpdate().password, environment.security.saltRounds)
+            .then(hash => {
+                this.getUpdate().password = hash;
                 next();
             }).catch(next);
     }
