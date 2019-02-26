@@ -53,6 +53,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         enum: ['Male', 'Female']
+    },
+    cpf: {
+        type: String,
+        required: false,
+        validate: {
+            validator: ,
+            message: '{PATH}: Invalid CPF ({VALUE})'
+        }
     }
 })
 
