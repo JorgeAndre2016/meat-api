@@ -24,6 +24,7 @@
 
 // utilizando o mongoose
 import * as mongoose from 'mongoose';
+import { validateCPF } from '../common/validators';
 
 export interface User extends mongoose.Document {
     name: string;
@@ -58,7 +59,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false,
         validate: {
-            validator: ,
+            validator: validateCPF,
             message: '{PATH}: Invalid CPF ({VALUE})'
         }
     }
