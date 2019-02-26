@@ -53,8 +53,10 @@ class UsersRouter extends Router {
         });
 
         application.put('/users/:id', (req, resp, next) => {
-            const options = { overwrite: true }; // parâmetro for atualizar todos os campos 
+            const options = { runvalidators: true, overwrite: true }; // overwrite: parâmetro for atualizar todos os campos 
                                                  // caso algum não sejá enviado logo não ira ser apresentado no doc
+                                                 // runvalidators: informa ao mongoose que será necessário a 
+                                                 // aplicação de validações neste momento
             User.update({ _id: req.params.id }, req.body, options).exec()
                 .then(result => {
                     if (result.n) {
@@ -72,7 +74,7 @@ class UsersRouter extends Router {
         });
 
         application.patch('/users/:id', (req, resp, next) => {
-            const options = { new : true}; // informando que deseja receber o documento já atualizado
+            const options = { runvalidators: true, new : true}; // informando que deseja receber o documento já atualizado
             User.findByIdAndUpdate(req.params.id, req.body, options)
                 // .then(user => {
                 //     if(user) {
