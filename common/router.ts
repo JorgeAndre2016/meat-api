@@ -9,7 +9,7 @@ export abstract class Router extends EventEmitter {
     render(response: restify.Response, next: restify.Next){
         return (document) => {
             if(document){
-                this.emit('beforeRender', document);
+                this.emit('beforeRender', document); // emit um documento antes de ser mostrado
                 response.json(document);
             }else {
                 // response.send(404);
