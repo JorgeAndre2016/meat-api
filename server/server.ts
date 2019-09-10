@@ -12,7 +12,7 @@ export class Server {
     application: restify.Server;
 
     initializeDb() {
-        (<any>mongoose).Promise = global.Promise
+        (<any>mongoose).Promise = global.Promise; // confiração de biblioteca de promise
         // url de conexão + opções de conexões
         return mongoose.connect(environment.db.url, {
             useNewUrlParser: true
@@ -29,7 +29,7 @@ export class Server {
 
                 this.application.use(restify.plugins.queryParser());
                 this.application.use(restify.plugins.bodyParser());
-                this.application.use(mergePatchBodyParser);
+                this.application.use(mergePatchBodyParser); // tratamento para patch method
                 // routes
 
                 for (let router of routers) {
@@ -69,7 +69,6 @@ export class Server {
                 });
 
                 this.application.on('restifyError', handleError)
-
 
                 // this.application.on('error', (error)=>{}) get erro do listen
             } catch (error) {
