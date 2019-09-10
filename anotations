@@ -1,0 +1,4 @@
+start 
+    nodemon dist/main.js
+transpilar
+    tsc -w
