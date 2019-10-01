@@ -25,13 +25,13 @@ class RestaurantsRouter extends ModelRouter<Restaurant> {
             .then(rest => { 
                 if(!rest) {
                     throw new NotFoundError('Restaurant not found');
-                }else {
-                    resp.menu = req.body; // ARRAY de MenuItem
+                }else {    
+                    rest.menu = req.body; // ARRAY de MenuItem
                     return rest.save();
                 }
             }).then(rest => {
                 resp.json(rest.menu);
-                return next;
+                return next();
             }).catch(next);
     }
 
