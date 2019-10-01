@@ -2,6 +2,9 @@ import { Router } from './router';
 import * as mongoose from 'mongoose';
 import { NotFoundError } from 'restify-errors';
 
+/**
+ * Class de defini método utilizados no mongoose
+ */
 export abstract class ModelRouter<D extends mongoose.Document>  extends Router {
     constructor(protected model: mongoose.Model<D>){
         super()
