@@ -7,7 +7,7 @@ import { NotFoundError } from 'restify-errors';
  */
 export abstract class ModelRouter<D extends mongoose.Document>  extends Router {
     constructor(protected model: mongoose.Model<D>){
-        super()
+        super();
     }
 
     protected prepareOne(query: mongoose.DocumentQuery<D, D>): mongoose.DocumentQuery<D, D> {
