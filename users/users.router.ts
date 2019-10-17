@@ -1,129 +1,135 @@
-import { ModelRouter } from '../common/model-router'
+import { Router } from '../common/router';
 import * as restify from 'restify';
-import { User } from './users.model'
+// import { User } from './users.model'; OLD MODEL
+import { User } from './users.schema';
 import { NotFoundError } from 'restify-errors';
 
-class UsersRouter extends ModelRouter<User> {
+class UsersRouter extends Router {
 
     constructor() {
-        super(User);
-        this.on('beforeRender', document => { // esquema para ocultar o pwd
+        super();
+
+        // capturando o event emitido pelo render e modificando o documento
+        // listener = document
+        this.on('beforeRender', document => {
             document.password = undefined;
-            // delete document.password;
-        })
-    }
+            // delete document.password
+        });
+    }    
 
-    findByEmail = (req, resp, next) => {
-        if(req.query.email) {
-            User.findByEmail(req.query.email)
-                .then(user => user ? [user] : [])
-                .then(this.renderAll(resp, next))
+    // implementando o applyRoutes para disponibilização das rotas de usuário no bootstrap da aplicação
+    applyRoutes(application: restify.Server) {
+        application.get('/users', (req, res, next) => {
+
+            // retornando uma lista de usuário (mock)
+            // User.findAll().then(users => { OLD MODEL
+
+            // User.find().then(users => {
+            //     res.json(users);
+            //     return next();
+            // });
+
+            User.find()
+                .then(this.render(res, next))
                 .catch(next);
-        } else {
-            next();
-        }
-    }
+        });
 
-    applyRouter(application: restify.Server) {
-        // application.get('/users', (req, resp, next) => {
-        //     // User.findAll().then(users => {
-        //     User.find()
-        //     // .then(users => {
-        //     //     resp.json(users);
-        //     //     return next();
-        //     // });
-        //     .then(this.render(resp, next))
-        //     .catch(next);
-        // });
+        application.get('/users/:id', (req, res, next) => {
+            // User.findById(req.params.id).then(user => {
+            //     if (user) {
+            //         res.json(user);
+            //         return next();
+            //     };
+            //     res.send(404);
+            //     return next();
+            // })
 
-        // accept-version:1.0.0 -> parâmetro que pode ser passado para apontar a versão
-        application.get({ path: '/users', version: '2.0.0'}, [this.findByEmail, this.findAll]); // controle de versão
-        application.get({ path: '/users', version: '1.0.0'}, this.findAll); // controle de versão
+            User.findById(req.params.id)
+                .then(this.render(res, next))
+                .catch(next);
+        });
 
-        // application.get('/users/:id', (req, resp, next) => {
-        //     User.findById(req.params.id)
-        //     // .then(user => {
-        //     //     if (user) {
-        //     //         resp.json(user);
-        //     //         return next();
-        //     //     }
+        application.post('/users', (req, res, next) => {
+            let user = new User(req.body);
+            // user.save().then(user => {
+            //     user.password = undefined;
+            //     res.json(user);
+            //     return next();
+            // });
 
-        //     //     resp.send(404);
-        //     //     return next();
-        //     // });
-        //     .then(this.render(resp, next))
-        //     .catch(next);
-        // });
+            user.save()
+                .then(this.render(res, next))
+                .catch(next);
+        });
 
-        application.get('/users/:id', [this.validateId, this.findById]);
+        // put usado para atualizado todo o documento
+        application.put('/users/:id', (req, res, next) => {
+            // overwrite: parâmetro for atualizar todos os campos 
+//                                          // caso algum não sejá enviado logo não ira ser apresentado no doc
+//                                          // runvalidators: informa ao mongoose que será necessário a 
+//                                          // aplicação de validações neste momento
+            const options = { overwrite: true }; // informar para o mongoose que desejá sobrescrever o documento completo
 
-        // application.post('/users', (req, resp, next) => {
-        //     let user = new User(req.body);
-        //     user.save()
-        //     // .then(user => {
-        //     //     user.password = undefined;
-        //     //     resp.json(user);
-        //     //     return next();
-        //     // })
-        //     .then(this.render(resp, next))
-        //     .catch(next);
-        // });
+            // método retorna um objeto de query, com exec da query é realizado o comando
+            // assim é possível se inscrever na promise
+            User.update({_id: req.params.id}, req.body, options)
+                .exec().then(result => {
+                    // UPDATE é um resultado de um comando
+                    // contém um sumary de execução na onde existe o N que 
+                    // (sumário contendo quantidade de registros afetados)
+                    // contém a quantidade de linhas afetas pelo comando
+                    if(result.n) {
+                        return User.findById(req.params.id); // buscando o dado e retornando
+                    } else {
+                        // res.send(404); OLD
+                        throw new NotFoundError('Document não encontrado');
+                    }
+                // }).then(user => {
+                //     res.json(user);
+                //     return next();
+                // });
+                })
+                .then(this.render(res, next))
+                .catch(next);
+        });
 
-        application.post('/users', this.save);
+        application.patch('/users/:id', (req, res, next) => {
 
-        // application.put('/users/:id', (req, resp, next) => {
-        //     const options = { runvalidators: true, overwrite: true }; // overwrite: parâmetro for atualizar todos os campos 
-        //                                          // caso algum não sejá enviado logo não ira ser apresentado no doc
-        //                                          // runvalidators: informa ao mongoose que será necessário a 
-        //                                          // aplicação de validações neste momento
-        //     User.update({ _id: req.params.id }, req.body, options).exec()
-        //         .then(result => {
-        //             if (result.n) { // conferindo se houve successo (sumário contendo quantidade de registros afetados)
-        //                 return User.findById(req.params.id); // buscando o dado e retornando
-        //             } else {
-        //             //    resp.send(404);
-        //             throw new NotFoundError('Documento não encontrado');
-        //             }
-        //         // }).then(user => {
-        //             //     resp.json(user);
-        //             //     return next();
-        //             // })
-        //         }).then(this.render(resp, next))
-        //         .catch(next);
-        // });
-        application.put('/users/:id', [this.validateId, this.replace]);
+            // indica para o mongoose que o documento a ser retornado tem que ser o novo
+            const options = { new: true };
 
-        // application.patch('/users/:id', (req, resp, next) => {
-        //     // contenttype = application/merge-patch+json
-        //     const options = { runvalidators: true, new : true}; // informando que deseja receber o documento já atualizado e que deve ser validado
-        //     User.findByIdAndUpdate(req.params.id, req.body, options)
-        //         // .then(user => {
-        //         //     if(user) {
-        //         //         resp.json(user);
-        //         //         return next();
-        //         //     }
-        //         //     resp.send(404);
-        //         //     return next();
-        //         // });
-        //         .then(this.render(resp, next))
-        //         .catch(next);
-        // });
-        application.patch('/users/:id', [this.validateId, this.update]);
+            // primeiro parâmetro para localizar registro a ser modificado
+            // segundo parâmetro novos dados para o documento
+            // application/merge-path+json (PATH RECOMENTADO A SER ENVIADO NO HEADER)
 
-        // application.del('/users/:id', (req, resp, next) => {
-        //     User.remove({_id: req.params.id}).exec()
-        //         .then((cmdResult: any) => {
-        //             if(cmdResult.result.n) {
-        //                 resp.send(204);
-        //             }else {
-        //                 // resp.send(404);
-        //                 throw new NotFoundError('Documento não encontrado');
-        //             }
-        //             return next();
-        //         })
-        //         .catch(next);
-        // });
-        application.del('/users/:id', [this.validateId, this.delete]);
+            // User.findByIdAndUpdate(req.params.id, req.body, options).then(user => {
+            //     if(user) {
+            //         res.json(user);
+            //         return next();
+            //     } else {
+            //         res.send(404);
+            //         return next();
+            //     }
+            // })
+
+            User.findByIdAndUpdate(req.params.id, req.body, options)
+                .then(this.render(res, next))
+                .catch(next);
+        });
+
+        application.del('/users/:id', (req, res, next) => {
+            User.remove({ _id: req.params.id }).exec()
+                .then((cmdResult: any) => {
+                    if(cmdResult.result.n) {
+                        res.send(204);
+                    } else {
+                        // res.send(404); OLD
+                        throw new NotFoundError('Document não encontrado');
+                    }
+                    return next();
+                })
+                .catch(next);
+        });
     }
 }
 

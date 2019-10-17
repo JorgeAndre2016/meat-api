@@ -3,6 +3,6 @@
     /* Basic Options */
     "outDir": "dist",
     "target": "es2015",
-    "module": "commonjs",
+    "module": "commonjs"
   }
 }

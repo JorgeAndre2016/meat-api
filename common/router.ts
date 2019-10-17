@@ -4,15 +4,18 @@ import { NotFoundError } from 'restify-errors';
 
 // class abstrata usada para mapear as rotas
 export abstract class Router extends EventEmitter {
+     // recebe uma instância da aplicação restify
     abstract applyRouter(application: restify.Server);
 
     render(response: restify.Response, next: restify.Next){
         return (document) => {
             if(document){
-                this.emit('beforeRender', document); // emit um documento antes de ser mostrado
+                // emit um documento antes de ser mostrado
+                // emite o documento antes da resposta
+                this.emit('beforeRender', document);
                 response.json(document);
             }else {
-                // response.send(404);
+                // response.send(404); OLD
                 throw new NotFoundError('Documento não encontrado');
             };
             return next();
