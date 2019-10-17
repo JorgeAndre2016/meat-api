@@ -3,7 +3,7 @@ import { environment } from '../common/environment';
 import { Router } from '../common/router';
 import * as mongoose from 'mongoose';
 import { mergePatchBodyParser } from './merge-patch.parser';
-import { handlerError } from './error.handler';
+import { handleError } from './error.handler';
 
 export class Server {
 
@@ -15,7 +15,7 @@ export class Server {
         (<any>mongoose).Promise = global.Promise;
 
         return mongoose.connect(environment.db.url, {
-           useMongoClient: true // modo de conexão banco
+            useNewUrlParser: true // modo de conexão banco
         });
     }
 
@@ -37,7 +37,7 @@ export class Server {
                 
                 // routes
                 for (let router of routers) {
-                    router.applyRoutes(this.application);
+                    router.applyRouter(this.application);
                 }
 
                 // OLD ROUTES
@@ -84,7 +84,7 @@ export class Server {
                 });
 
                 // registrar evento para tratamento de erros
-                this.application.on('restifyError', handlerError);  
+                this.application.on('restifyError', handleError);  
                 
             } catch (error) { // caso ocorra algum erro de configuração do servidor restify
                 reject(error);

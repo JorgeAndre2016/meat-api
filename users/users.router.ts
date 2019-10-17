@@ -18,7 +18,7 @@ class UsersRouter extends Router {
     }    
 
     // implementando o applyRoutes para disponibilização das rotas de usuário no bootstrap da aplicação
-    applyRoutes(application: restify.Server) {
+    applyRouter(application: restify.Server) {
         application.get('/users', (req, res, next) => {
 
             // retornando uma lista de usuário (mock)
