@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose';
 import { validateCPF } from './../common/validators';
+import * as bcrypt from 'bcrypt';
+import { environment } from '../common/environment';
 
 // definição de inteface do usuário que extends
 // do Document do mongoose que já contém diversas coisas
@@ -45,6 +47,23 @@ const userSchema = new mongoose.Schema({
         }
     }
 });
+
+// evento save sendo registrado
+userSchema.pre('save', function(next){
+    const user: User = this;
+
+    // caso o campo pwd não tenha sido modificado o fluxo normal será seguido
+    if(!user.isModified('password')){
+        next();
+    } else {
+        bcrypt.hash(user.password, environment.security.saltRounds)
+            .then(hash => {
+                user.password = hash;
+                next();
+            })
+            .catch(next);
+    }
+})
 
 // name do model = inferir nome da collection no plural
 // <User> definição de um tipo generico para o model no caso a interface User
