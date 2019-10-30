@@ -48,22 +48,37 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-// evento save sendo registrado
-userSchema.pre('save', function(next){
-    const user: User = this;
+const hashPassword = (obj, next) => {
+    bcrypt.hash(obj.password, environment.security.saltRounds)
+    .then(hash => {
+        obj.password = hash;
+        next();
+    })
+    .catch(next);
+}
 
-    // caso o campo pwd não tenha sido modificado o fluxo normal será seguido
+const saveMiddleware = function (next) {
+    const user: User = this;
     if(!user.isModified('password')){
         next();
     } else {
-        bcrypt.hash(user.password, environment.security.saltRounds)
-            .then(hash => {
-                user.password = hash;
-                next();
-            })
-            .catch(next);
+      hashPassword(user, next);
     }
-})
+}
+
+const updateMiddleware = function(next){
+    if(!this.getUpdate().password){
+        next();
+    } else {
+        hashPassword(this.getUpdate(), next);
+    }
+}
+
+// evento save sendo registrado
+userSchema.pre('save', saveMiddleware);
+// evento findOneAndUpdate sendo registrado
+userSchema.pre('findOneAndUpdate', updateMiddleware);
+userSchema.pre('update', updateMiddleware);
 
 // name do model = inferir nome da collection no plural
 // <User> definição de um tipo generico para o model no caso a interface User

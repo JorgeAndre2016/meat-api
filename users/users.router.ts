@@ -68,7 +68,10 @@ class UsersRouter extends Router {
 //                                          // caso algum não sejá enviado logo não ira ser apresentado no doc
 //                                          // runvalidators: informa ao mongoose que será necessário a 
 //                                          // aplicação de validações neste momento
-            const options = { overwrite: true }; // informar para o mongoose que desejá sobrescrever o documento completo
+
+            // informa para o mongoose que desejá sobrescrever o documento completo
+            // informa ao mongoose que desejá aplicar as validações
+            const options = { overwrite: true, runValidators: true };
 
             // método retorna um objeto de query, com exec da query é realizado o comando
             // assim é possível se inscrever na promise
@@ -96,7 +99,7 @@ class UsersRouter extends Router {
         application.patch('/users/:id', (req, res, next) => {
 
             // indica para o mongoose que o documento a ser retornado tem que ser o novo
-            const options = { new: true };
+            const options = { new: true, runValidators: true };
 
             // primeiro parâmetro para localizar registro a ser modificado
             // segundo parâmetro novos dados para o documento
