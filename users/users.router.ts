@@ -1,13 +1,13 @@
-import { Router } from '../common/router';
+import { ModelRouter } from '../common/model-router';
 import * as restify from 'restify';
 // import { User } from './users.model'; OLD MODEL
 import { User } from './users.schema';
 import { NotFoundError } from 'restify-errors';
 
-class UsersRouter extends Router {
+class UsersRouter extends ModelRouter<User> {
 
     constructor() {
-        super();
+        super(User);
 
         // capturando o event emitido pelo render e modificando o documento
         // listener = document
@@ -19,7 +19,9 @@ class UsersRouter extends Router {
 
     // implementando o applyRoutes para disponibilização das rotas de usuário no bootstrap da aplicação
     applyRouter(application: restify.Server) {
-        application.get('/users', (req, res, next) => {
+        
+        application.get('/users', this.findAll);
+        // application.get('/users', (req, res, next) => {
 
             // retornando uma lista de usuário (mock)
             // User.findAll().then(users => { OLD MODEL
@@ -29,12 +31,13 @@ class UsersRouter extends Router {
             //     return next();
             // });
 
-            User.find()
-                .then(this.render(res, next))
-                .catch(next);
-        });
+            // User.find()
+            //     .then(this.render(res, next))
+            //     .catch(next);
+        // });
 
-        application.get('/users/:id', (req, res, next) => {
+        application.get('/users/:id', [ this.validateId, this.findById ]);
+        // application.get('/users/:id', (req, res, next) => {
             // User.findById(req.params.id).then(user => {
             //     if (user) {
             //         res.json(user);
@@ -44,26 +47,28 @@ class UsersRouter extends Router {
             //     return next();
             // })
 
-            User.findById(req.params.id)
-                .then(this.render(res, next))
-                .catch(next);
-        });
+        //     User.findById(req.params.id)
+        //         .then(this.render(res, next))
+        //         .catch(next);
+        // });
 
-        application.post('/users', (req, res, next) => {
-            let user = new User(req.body);
-            // user.save().then(user => {
-            //     user.password = undefined;
-            //     res.json(user);
-            //     return next();
-            // });
+        application.post('/users', this.save);
+        // application.post('/users', (req, res, next) => {
+        //     let user = new User(req.body);
+        //     // user.save().then(user => {
+        //     //     user.password = undefined;
+        //     //     res.json(user);
+        //     //     return next();
+        //     // });
 
-            user.save()
-                .then(this.render(res, next))
-                .catch(next);
-        });
+        //     user.save()
+        //         .then(this.render(res, next))
+        //         .catch(next);
+        // });
 
+        application.put('/users/:id', [this.validateId, this.replace ]);
         // put usado para atualizado todo o documento
-        application.put('/users/:id', (req, res, next) => {
+        // application.put('/users/:id', (req, res, next) => {
             // overwrite: parâmetro for atualizar todos os campos 
 //                                          // caso algum não sejá enviado logo não ira ser apresentado no doc
 //                                          // runvalidators: informa ao mongoose que será necessário a 
@@ -71,35 +76,36 @@ class UsersRouter extends Router {
 
             // informa para o mongoose que desejá sobrescrever o documento completo
             // informa ao mongoose que desejá aplicar as validações
-            const options = { overwrite: true, runValidators: true };
+            // const options = { overwrite: true, runValidators: true };
 
             // método retorna um objeto de query, com exec da query é realizado o comando
             // assim é possível se inscrever na promise
-            User.update({_id: req.params.id}, req.body, options)
-                .exec().then(result => {
+            // User.update({_id: req.params.id}, req.body, options)
+            //     .exec().then(result => {
                     // UPDATE é um resultado de um comando
                     // contém um sumary de execução na onde existe o N que 
                     // (sumário contendo quantidade de registros afetados)
                     // contém a quantidade de linhas afetas pelo comando
-                    if(result.n) {
-                        return User.findById(req.params.id); // buscando o dado e retornando
-                    } else {
-                        // res.send(404); OLD
-                        throw new NotFoundError('Document não encontrado');
-                    }
+                    // if(result.n) {
+                    //     return User.findById(req.params.id); // buscando o dado e retornando
+                    // } else {
+                    //     // res.send(404); OLD
+                    //     throw new NotFoundError('Document não encontrado');
+                    // }
                 // }).then(user => {
                 //     res.json(user);
                 //     return next();
                 // });
-                })
-                .then(this.render(res, next))
-                .catch(next);
-        });
+        //         })
+        //         .then(this.render(res, next))
+        //         .catch(next);
+        // });
 
-        application.patch('/users/:id', (req, res, next) => {
+        application.patch('/users/:id', [ this.validateId, this.update ]);
+        // application.patch('/users/:id', (req, res, next) => {
 
             // indica para o mongoose que o documento a ser retornado tem que ser o novo
-            const options = { new: true, runValidators: true };
+            // const options = { new: true, runValidators: true };
 
             // primeiro parâmetro para localizar registro a ser modificado
             // segundo parâmetro novos dados para o documento
@@ -115,24 +121,25 @@ class UsersRouter extends Router {
             //     }
             // })
 
-            User.findByIdAndUpdate(req.params.id, req.body, options)
-                .then(this.render(res, next))
-                .catch(next);
-        });
+        //     User.findByIdAndUpdate(req.params.id, req.body, options)
+        //         .then(this.render(res, next))
+        //         .catch(next);
+        // });
 
-        application.del('/users/:id', (req, res, next) => {
-            User.remove({ _id: req.params.id }).exec()
-                .then((cmdResult: any) => {
-                    if(cmdResult.result.n) {
-                        res.send(204);
-                    } else {
-                        // res.send(404); OLD
-                        throw new NotFoundError('Document não encontrado');
-                    }
-                    return next();
-                })
-                .catch(next);
-        });
+        application.del('/users/:id', [ this.validateId, this.delete ]);
+        // application.del('/users/:id', (req, res, next) => {
+        //     User.remove({ _id: req.params.id }).exec()
+        //         .then((cmdResult: any) => {
+        //             if(cmdResult.result.n) {
+        //                 res.send(204);
+        //             } else {
+        //                 // res.send(404); OLD
+        //                 throw new NotFoundError('Document não encontrado');
+        //             }
+        //             return next();
+        //         })
+        //         .catch(next);
+        // });
     }
 }
 
