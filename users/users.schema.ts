@@ -11,6 +11,11 @@ export interface User extends mongoose.Document {
     password: string
 }
 
+// assinatura findByEmail
+export interface UserModel extends mongoose.Model<User> {
+    findByEmail(email: string): Promise<User>
+}
+
 /**
  * Definição de metadados dos documento Users
  * (Informar ao mongoose quais o metadados do documento)
@@ -48,6 +53,10 @@ const userSchema = new mongoose.Schema({
     }
 });
 
+userSchema.statics.findByEmail = function(email: string) {
+    return this.findOne({email}); // {email: email}
+}
+
 const hashPassword = (obj, next) => {
     bcrypt.hash(obj.password, environment.security.saltRounds)
     .then(hash => {
@@ -82,4 +91,4 @@ userSchema.pre('update', updateMiddleware);
 
 // name do model = inferir nome da collection no plural
 // <User> definição de um tipo generico para o model no caso a interface User
-export const User = mongoose.model<User>('User', userSchema);
+export const User = mongoose.model<User, UserModel>('User', userSchema);
