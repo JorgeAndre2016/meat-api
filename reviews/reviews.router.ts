@@ -23,7 +23,6 @@ class ReviewRouter extends ModelRouter<Review> {
                     .populate('restaurant');
     }
 
-
     applyRouter(application: restify.Server) {
         application.get('/reviews', this.findAll);
         application.get('/reviews/:id', [this.validateId, this.findById]);

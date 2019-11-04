@@ -17,10 +17,27 @@ class UsersRouter extends ModelRouter<User> {
         });
     }    
 
+    findByEmail = (req, resp, next) => {
+        if(req.query.email) {
+            User.find({email: req.query.email})
+                .then(this.renderAll(resp, next))
+                .catch(next)
+        }else {
+           next(); 
+        }
+    };
+
     // implementando o applyRoutes para disponibilização das rotas de usuário no bootstrap da aplicação
     applyRouter(application: restify.Server) {
         
-        application.get('/users', this.findAll);
+        // accept-version : 1.0.0 (Header - Informando versão)
+
+        // caso não especifique versão, quer dizer que a rota atende em qualquer versão
+        application.get({ path: '/users', version: '1.0.0' }, this.findAll);
+        application.get({ path: '/users', version: '2.0.0' }, [this.findByEmail, this.findAll]);
+
+
+        // application.get('/users', this.findAll);
         // application.get('/users', (req, res, next) => {
 
             // retornando uma lista de usuário (mock)
