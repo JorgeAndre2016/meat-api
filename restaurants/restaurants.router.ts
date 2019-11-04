@@ -9,6 +9,7 @@ class RestaurantsRouter extends ModelRouter<Restaurant> {
     }
 
     findMenu = (req, resp, next) => {
+        // +menu informa que deseja que o campo que foi setado o select como false sejá devolvido neste find
         Restaurant.findById(req.params.id, "+menu")
             .then(rest => {
                 if(!rest) {
@@ -23,14 +24,16 @@ class RestaurantsRouter extends ModelRouter<Restaurant> {
     replaceMenu = (req, resp, next) => {
         Restaurant.findById(req.params.id)
             .then(rest => { 
+
+                // atualização dos dados
                 if(!rest) {
                     throw new NotFoundError('Restaurant not found');
                 }else {    
                     rest.menu = req.body; // ARRAY de MenuItem
-                    return rest.save();
+                    return rest.save(); // retornando os dados novos
                 }
             }).then(rest => {
-                resp.json(rest.menu);
+                resp.json(rest.menu); // retornando os dados novos
                 return next();
             }).catch(next);
     }
