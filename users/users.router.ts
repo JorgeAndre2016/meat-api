@@ -34,8 +34,8 @@ class UsersRouter extends ModelRouter<User> {
         // accept-version : 1.0.0 (Header - Informando versão)
 
         // caso não especifique versão, quer dizer que a rota atende em qualquer versão
-        application.get({ path: '/users', version: '1.0.0' }, this.findAll);
-        application.get({ path: '/users', version: '2.0.0' }, [this.findByEmail, this.findAll]);
+        application.get({ path: `${this.basePath}`, version: '1.0.0' }, this.findAll);
+        application.get({ path: `${this.basePath}`, version: '2.0.0' }, [this.findByEmail, this.findAll]);
 
 
         // application.get('/users', this.findAll);
@@ -54,7 +54,7 @@ class UsersRouter extends ModelRouter<User> {
             //     .catch(next);
         // });
 
-        application.get('/users/:id', [ this.validateId, this.findById ]);
+        application.get(`${this.basePath}/:id`, [ this.validateId, this.findById ]);
         // application.get('/users/:id', (req, res, next) => {
             // User.findById(req.params.id).then(user => {
             //     if (user) {
@@ -70,7 +70,7 @@ class UsersRouter extends ModelRouter<User> {
         //         .catch(next);
         // });
 
-        application.post('/users', this.save);
+        application.post(`${this.basePath}`, this.save);
         // application.post('/users', (req, res, next) => {
         //     let user = new User(req.body);
         //     // user.save().then(user => {
@@ -84,7 +84,7 @@ class UsersRouter extends ModelRouter<User> {
         //         .catch(next);
         // });
 
-        application.put('/users/:id', [this.validateId, this.replace ]);
+        application.put(`${this.basePath}/:id`, [this.validateId, this.replace ]);
         // put usado para atualizado todo o documento
         // application.put('/users/:id', (req, res, next) => {
             // overwrite: parâmetro for atualizar todos os campos 
@@ -119,7 +119,7 @@ class UsersRouter extends ModelRouter<User> {
         //         .catch(next);
         // });
 
-        application.patch('/users/:id', [ this.validateId, this.update ]);
+        application.patch(`${this.basePath}/:id`, [ this.validateId, this.update ]);
         // application.patch('/users/:id', (req, res, next) => {
 
             // indica para o mongoose que o documento a ser retornado tem que ser o novo
@@ -144,7 +144,7 @@ class UsersRouter extends ModelRouter<User> {
         //         .catch(next);
         // });
 
-        application.del('/users/:id', [ this.validateId, this.delete ]);
+        application.del(`${this.basePath}/:id`, [ this.validateId, this.delete ]);
         // application.del('/users/:id', (req, res, next) => {
         //     User.remove({ _id: req.params.id }).exec()
         //         .then((cmdResult: any) => {
