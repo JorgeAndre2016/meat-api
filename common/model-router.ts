@@ -10,6 +10,7 @@ export abstract class ModelRouter<D extends mongoose.Document>  extends Router {
         super();
     }
 
+    // método para alterar a query antes de usar o find
     protected prepareOne(query: mongoose.DocumentQuery<D, D>): mongoose.DocumentQuery<D, D> {
         return query;
     } 
